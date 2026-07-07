@@ -129,9 +129,6 @@ const VoucherModal = ({ isOpen, onClose }: VoucherModalProps) => {
                       className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700"
                     />
                     <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent flex flex-col justify-center p-4 md:p-8">
-                      <span className="bg-white/20 backdrop-blur-md text-white text-[10px] md:text-xs font-bold px-2 md:px-3 py-1 rounded-full w-max mb-2 md:mb-3 border border-white/30">
-                        {v.code}
-                      </span>
                       <h3 className="text-white font-extrabold text-2xl sm:text-3xl md:text-4xl leading-tight mb-1 md:mb-2 max-w-[90%] md:max-w-[80%]">
                         {v.name}
                       </h3>
@@ -178,9 +175,7 @@ const VoucherModal = ({ isOpen, onClose }: VoucherModalProps) => {
               <QRCode value={`${user ? user.id : ''}-${selectedVoucher.code}`} size={200} />
             </div>
             
-            <p className="text-gray-500 text-sm mb-1">Mã Voucher</p>
-            <p className="text-2xl font-black text-emerald-600 tracking-widest">{selectedVoucher.code}</p>
-            <p className="text-sm text-gray-500 mt-6 text-center">
+            <p className="text-sm text-gray-600 font-medium text-center px-2">
               Đưa mã QR này cho nhân viên phục vụ hoặc thu ngân để áp dụng giảm giá
             </p>
           </div>
