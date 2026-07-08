@@ -137,11 +137,6 @@ const Booking = () => {
       return;
     }
 
-    if (!user) {
-      setErrorMessage('Vui lòng đăng nhập để đặt bàn.');
-      return;
-    }
-
     setIsSubmitting(true);
     try {
       const gCount = parseInt(guestCount);
@@ -194,7 +189,9 @@ const Booking = () => {
   const submitReservation = async (payload: any) => {
     try {
       setIsSubmitting(true);
-      await api.post('/customer/reservations', payload);
+      // Da dang nhap -> route customer (ho tro dat mon truoc). Khach vang lai -> route public (chi dat ban).
+      const endpoint = user ? '/customer/reservations' : '/public/reservations';
+      await api.post(endpoint, payload);
       setSubmitSuccess(true);
     } catch (err: any) {
       setErrorMessage(err.response?.data?.message || 'Có lỗi xảy ra khi đặt bàn. Vui lòng thử lại.');
@@ -455,29 +452,32 @@ const Booking = () => {
             />
           </div>
 
-          <div className="pt-4 border-t border-gray-100">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="font-bold text-gray-800 text-lg">Món ăn đặt trước</h3>
-              <button 
-                type="button"
-                onClick={handleOpenMenuModal}
-                className="bg-amber-50 text-amber-600 px-4 py-2 rounded-xl font-bold hover:bg-amber-100 transition-colors border border-amber-100 flex items-center gap-2 text-sm"
-              >
-                + Thêm món ăn
-              </button>
-            </div>
-            
-            {Object.values(preorderCart).filter(c => c.quantity > 0).length > 0 && (
-              <div className="bg-gray-50 rounded-xl p-4 border border-gray-100 space-y-3">
-                {Object.values(preorderCart).filter(c => c.quantity > 0).map((c, idx) => (
-                  <div key={idx} className="flex justify-between items-center text-sm">
-                    <span className="text-gray-800 font-medium">{c.item.name || c.item.item_name}</span>
-                    <span className="text-gray-600">x{c.quantity}</span>
-                  </div>
-                ))}
+          {/* Dat mon truoc chi danh cho khach da dang nhap (can vi + PIN de dat coc) */}
+          {user && (
+            <div className="pt-4 border-t border-gray-100">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="font-bold text-gray-800 text-lg">Món ăn đặt trước</h3>
+                <button
+                  type="button"
+                  onClick={handleOpenMenuModal}
+                  className="bg-amber-50 text-amber-600 px-4 py-2 rounded-xl font-bold hover:bg-amber-100 transition-colors border border-amber-100 flex items-center gap-2 text-sm"
+                >
+                  + Thêm món ăn
+                </button>
               </div>
-            )}
-          </div>
+
+              {Object.values(preorderCart).filter(c => c.quantity > 0).length > 0 && (
+                <div className="bg-gray-50 rounded-xl p-4 border border-gray-100 space-y-3">
+                  {Object.values(preorderCart).filter(c => c.quantity > 0).map((c, idx) => (
+                    <div key={idx} className="flex justify-between items-center text-sm">
+                      <span className="text-gray-800 font-medium">{c.item.name || c.item.item_name}</span>
+                      <span className="text-gray-600">x{c.quantity}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
 
           <button 
             type="submit" 

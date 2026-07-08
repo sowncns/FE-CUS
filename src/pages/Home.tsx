@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useOutletContext, useNavigate } from 'react-router-dom';
-import { Gift, Wallet, CreditCard, Phone, ChevronRight } from 'lucide-react';
+import { Gift, Wallet, CreditCard, Phone, ChevronRight, X, MessageCircle, Mail } from 'lucide-react';
 import api from '../lib/api';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -27,6 +27,10 @@ const t = {
     expireIn: "Hết hạn trong",
     expireAt: "HSD:",
     days: "ngày",
+    contactUs: "Liên hệ với chúng tôi",
+    callUs: "Gọi điện thoại",
+    emailUs: "Gửi Email",
+    facebook: "Fanpage Facebook",
   },
   en: {
     heroTitle: "Savor the Ultimate Cuisine",
@@ -43,6 +47,10 @@ const t = {
     expireIn: "Expires in",
     expireAt: "Exp:",
     days: "days",
+    contactUs: "Contact Us",
+    callUs: "Call Us",
+    emailUs: "Send Email",
+    facebook: "Facebook Page",
   }
 };
 
@@ -57,6 +65,10 @@ const Home = () => {
   const [banners, setBanners] = useState<any[]>([]);
   const { user } = useAuth();
   const [balance, setBalance] = useState<number>(0);
+  const [isContactModalOpen, setIsContactModalOpen] = useState(false);
+  const vouchersRef = useRef<HTMLDivElement>(null);
+  const promosRef = useRef<HTMLDivElement>(null);
+  
   // Use fetched banners or fallback to default images
   const BANNER_IMAGES = banners.length > 0 
     ? banners.map((banner) => banner.image_url || banner.file_url) 
@@ -93,6 +105,24 @@ const Home = () => {
       }
     };
     fetchVouchers();
+  }, []);
+
+  useEffect(() => {
+    const listTimer = setInterval(() => {
+      [vouchersRef, promosRef].forEach((ref) => {
+        if (ref.current) {
+          const { scrollLeft, scrollWidth, clientWidth } = ref.current;
+          // If we reached the end, scroll back to start
+          if (scrollLeft + clientWidth >= scrollWidth - 10) {
+            ref.current.scrollTo({ left: 0, behavior: 'smooth' });
+          } else {
+            // Scroll by one item roughly
+            ref.current.scrollBy({ left: clientWidth * 0.8, behavior: 'smooth' });
+          }
+        }
+      });
+    }, 4500);
+    return () => clearInterval(listTimer);
   }, []);
 
 
@@ -140,25 +170,30 @@ const Home = () => {
   }) : MOCK_VOUCHERS;
 
   return (
-    <div className="space-y-12 pb-20">
+    <div className="space-y-12 pb-20 relative">
       {/* Hero Banner Slider */}
       <div className="relative h-[300px] sm:h-[400px] rounded-3xl overflow-hidden shadow-lg group">
-        {BANNER_IMAGES.map((img, index) => (
-          <div 
-            key={index}
-            className={`absolute inset-0 transition-opacity duration-1000 ${index === currentSlide ? 'opacity-100' : 'opacity-0'}`}
-          >
-            <img src={img} alt="Banner" className="w-full h-full object-cover" />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent flex flex-col justify-end p-8 sm:p-12">
-              <h2 className="text-white text-3xl sm:text-5xl font-bold mb-4 transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
-                {t[language].heroTitle}
-              </h2>
-              <p className="text-gray-200 text-lg sm:text-xl transform translate-y-4 opacity-0 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-500 delay-100">
-                {t[language].heroDesc}
-              </p>
+        <div 
+          className="flex h-full w-full transition-transform duration-700 ease-in-out"
+          style={{ transform: `translateX(-${currentSlide * 100}%)` }}
+        >
+          {BANNER_IMAGES.map((img, index) => (
+            <div 
+              key={index}
+              className="w-full h-full flex-shrink-0 relative"
+            >
+              <img src={img} alt="Banner" className="w-full h-full object-cover" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent flex flex-col justify-end p-8 sm:p-12">
+                <h2 className="text-white text-3xl sm:text-5xl font-bold mb-4 transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
+                  {t[language].heroTitle}
+                </h2>
+                <p className="text-gray-200 text-lg sm:text-xl transform translate-y-4 opacity-0 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-500 delay-100">
+                  {t[language].heroDesc}
+                </p>
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
         {/* Dots Navigation */}
         <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2">
           {BANNER_IMAGES.map((_, idx) => (
@@ -177,7 +212,7 @@ const Home = () => {
           { icon: Gift, title: t[language].gifts, color: 'text-rose-500', action: openVoucherModal },
           { icon: Wallet, title: t[language].topup, color: 'text-blue-500', action: () => navigate('/topup') },
           { icon: CreditCard, title: t[language].igoCard, color: 'text-amber-500', action: () => navigate('/igo-card') },
-          { icon: Phone, title: t[language].contact, color: 'text-emerald-500' },
+          { icon: Phone, title: t[language].contact, color: 'text-emerald-500', action: () => setIsContactModalOpen(true) },
         ].map((item, idx) => (
           <div 
             key={idx} 
@@ -198,12 +233,12 @@ const Home = () => {
             {t[language].seeAll} <ChevronRight className="w-4 h-4" />
           </button>
         </div>
-        <div className="flex overflow-x-auto gap-4 md:gap-6 pb-4 snap-x snap-mandatory hide-scrollbar">
+        <div ref={vouchersRef} className="flex overflow-x-auto gap-4 md:gap-6 pb-4 snap-x snap-mandatory hide-scrollbar scroll-smooth">
           {displayVouchers.map((voucher, idx) => (
             <div 
               key={voucher.id || idx} 
               onClick={openVoucherModal}
-              className={`w-[85vw] sm:w-[280px] md:w-[320px] snap-center ${voucher.bg} p-5 md:p-6 rounded-3xl relative overflow-hidden group cursor-pointer hover:shadow-lg transition-all shrink-0 flex-none`}
+              className={`w-full sm:w-[280px] md:w-[320px] snap-start ${voucher.bg} p-5 md:p-6 rounded-3xl relative overflow-hidden group cursor-pointer hover:shadow-lg transition-all shrink-0 flex-none`}
             >
               <Gift className="absolute -right-4 -bottom-4 w-24 h-24 md:w-32 md:h-32 opacity-10 transform group-hover:scale-110 group-hover:rotate-12 transition-transform duration-500" />
               <div className="relative z-10 flex flex-col h-full justify-between">
@@ -224,12 +259,12 @@ const Home = () => {
       {/* Food Promos */}
       <div>
         <h3 className="text-2xl font-bold text-gray-800 mb-6">{t[language].whatToEat}</h3>
-        <div className="flex overflow-x-auto gap-4 md:gap-6 pb-4 snap-x snap-mandatory hide-scrollbar">
+        <div ref={promosRef} className="flex overflow-x-auto gap-4 md:gap-6 pb-4 snap-x snap-mandatory hide-scrollbar scroll-smooth">
           {(promotions.length > 0 ? promotions : [
             { title: 'Thưởng thức Iga Wagyu Thượng Hạng', title_en: 'Enjoy Premium Iga Wagyu', image_url: 'https://images.unsplash.com/photo-1544025162-831e7fce95af?auto=format&fit=crop&q=80&w=800&h=500' },
             { title: 'Trải nghiệm Shojin Ryori Tinh Tế', title_en: 'Exquisite Shojin Ryori Experience', image_url: 'https://images.unsplash.com/photo-1580828369018-0288cba8c6dc?auto=format&fit=crop&q=80&w=800&h=500' },
           ]).map((promo, idx) => (
-            <div key={promo.id || idx} className="relative min-w-[85%] md:min-w-[400px] h-[200px] md:h-[250px] shrink-0 snap-center rounded-3xl overflow-hidden group cursor-pointer shadow-sm hover:shadow-xl transition-all">
+            <div key={promo.id || idx} className="relative w-full sm:w-[320px] md:w-[400px] h-[200px] md:h-[250px] shrink-0 snap-start rounded-3xl overflow-hidden group cursor-pointer shadow-sm hover:shadow-xl transition-all">
               <img 
                 src={promo.image_url || promo.image || 'https://images.unsplash.com/photo-1544025162-831e7fce95af?auto=format&fit=crop&q=80&w=800&h=500'} 
                 alt={promo.title || promo.name} 
@@ -267,6 +302,51 @@ const Home = () => {
           <span className="font-bold text-sm md:text-lg leading-none">{balance.toLocaleString('vi-VN')}đ</span>
         </div>
       </button>
+
+      {/* Contact Modal */}
+      {isContactModalOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm" onClick={() => setIsContactModalOpen(false)}>
+          <div className="bg-white rounded-2xl w-full max-w-sm overflow-hidden shadow-2xl" onClick={e => e.stopPropagation()}>
+            <div className="flex justify-between items-center p-4 border-b">
+              <h3 className="text-lg font-bold text-gray-800">{t[language].contactUs}</h3>
+              <button onClick={() => setIsContactModalOpen(false)} className="text-gray-400 hover:text-gray-700 p-1">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="p-4 space-y-3">
+              <a href="tel:+84123456789" className="flex items-center gap-4 p-4 rounded-xl bg-gray-50 hover:bg-green-50 transition-colors group text-decoration-none">
+                <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center text-green-600 group-hover:scale-110 transition-transform">
+                  <Phone className="w-5 h-5" />
+                </div>
+                <div>
+                  <div className="font-semibold text-gray-800">{t[language].callUs}</div>
+                  <div className="text-sm text-gray-500">1900 1234</div>
+                </div>
+              </a>
+              
+              <a href="mailto:contact@igourmet.com" className="flex items-center gap-4 p-4 rounded-xl bg-gray-50 hover:bg-blue-50 transition-colors group text-decoration-none">
+                <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 group-hover:scale-110 transition-transform">
+                  <Mail className="w-5 h-5" />
+                </div>
+                <div>
+                  <div className="font-semibold text-gray-800">{t[language].emailUs}</div>
+                  <div className="text-sm text-gray-500">contact@igourmet.com</div>
+                </div>
+              </a>
+              
+              <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="flex items-center gap-4 p-4 rounded-xl bg-gray-50 hover:bg-indigo-50 transition-colors group text-decoration-none">
+                <div className="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 group-hover:scale-110 transition-transform">
+                  <MessageCircle className="w-5 h-5" />
+                </div>
+                <div>
+                  <div className="font-semibold text-gray-800">{t[language].facebook}</div>
+                  <div className="text-sm text-gray-500">@igourmet.vn</div>
+                </div>
+              </a>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
