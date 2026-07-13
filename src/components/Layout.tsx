@@ -6,7 +6,6 @@ import PaymentModal from './PaymentModal';
 import QrActionModal from './QrActionModal';
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import api from '../lib/api';
 
 const Layout = () => {
   const navigate = useNavigate();
