@@ -2,12 +2,14 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import api from '../lib/api';
 import { useAuth } from '../contexts/AuthContext';
+import ForgotPasswordModal from '../components/ForgotPasswordModal';
 
 const Login = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [isForgotModalOpen, setIsForgotModalOpen] = useState(false);
   const navigate = useNavigate();
   const { login } = useAuth();
 
@@ -73,7 +75,13 @@ const Login = () => {
               <input type="checkbox" className="rounded text-primary focus:ring-primary" />
               <span className="text-gray-600">Ghi nhớ đăng nhập</span>
             </label>
-            <a href="#" className="text-primary hover:underline font-medium">Quên mật khẩu?</a>
+            <button 
+              type="button" 
+              onClick={() => setIsForgotModalOpen(true)}
+              className="text-primary hover:underline font-medium focus:outline-none"
+            >
+              Quên mật khẩu?
+            </button>
           </div>
           
           <button 
@@ -91,6 +99,11 @@ const Login = () => {
           </Link>
         </p>
       </div>
+
+      <ForgotPasswordModal 
+        isOpen={isForgotModalOpen} 
+        onClose={() => setIsForgotModalOpen(false)} 
+      />
     </div>
   );
 };
