@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { ArrowLeft, User, Bell, Gift, FileText, Smartphone, LogOut, ChevronRight, Calendar, MapPin as QrCode, Lock, Eye, EyeOff, Receipt } from 'lucide-react';
+import { ArrowLeft, User, Bell, Gift, FileText, Smartphone, LogOut, ChevronRight, Calendar, MapPin as QrCode, Lock, Eye, EyeOff, Receipt, AlertCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import api from '../lib/api';
 import PinVerification from './PinVerification';
@@ -130,6 +130,20 @@ const ProfileDrawer = ({ isOpen, onClose, openVoucherModal }: ProfileDrawerProps
   const [profileLoading, setProfileLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [userProfile, setUserProfile] = useState<any>(user);
+  const [resending, setResending] = useState(false);
+
+  const handleResendVerification = async () => {
+    if (!user || resending) return;
+    setResending(true);
+    try {
+      await api.post('/customer/auth/request-verification');
+      alert('Đã gửi lại email xác thực. Vui lòng kiểm tra hộp thư của bạn.');
+    } catch (err: any) {
+      alert(err.response?.data?.message || 'Có lỗi xảy ra khi gửi lại email.');
+    } finally {
+      setResending(false);
+    }
+  };
 
   /* const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -311,7 +325,7 @@ const ProfileDrawer = ({ isOpen, onClose, openVoucherModal }: ProfileDrawerProps
           <div className="p-6 space-y-8">
             
             {/* User Info Basic */}
-            <div className="flex items-center gap-4 cursor-pointer group px-2" onClick={() => setView('edit')}>
+            <div className="flex items-center gap-4 cursor-pointer group px-2 mb-4" onClick={() => setView('edit')}>
               <div className="w-16 h-16 bg-emerald-50 rounded-full flex items-center justify-center text-emerald-500 font-bold text-2xl group-hover:bg-emerald-100 transition-colors overflow-hidden">
                 <User className="w-8 h-8" />
               </div>
@@ -426,15 +440,6 @@ const ProfileDrawer = ({ isOpen, onClose, openVoucherModal }: ProfileDrawerProps
                   </span>
                   <ChevronRight className="w-4 h-4 text-gray-300" />
                 </div>
-                {/* <div 
-                  className={menuItemClass}
-                  onClick={() => setLanguage(lang => lang === 'vi' ? 'en' : 'vi')}
-                >
-                  <className="w-[22px] h-[22px] text-gray-700" strokeWidth={1.5} />
-                  <span className="flex-1 text-[15px] text-gray-800 font-medium">{t[language].language}</span>
-                  <span className="text-[14px] font-medium text-[#00a662] mr-1">{language === 'vi' ? 'Tiếng Việt' : 'English'}</span>
-                  <ChevronRight className="w-4 h-4 text-gray-300" />
-                </div> */}
                 <div 
                   onClick={handleLogout}
                   className="flex items-center gap-4 py-3 px-2 mt-2 cursor-pointer group"
@@ -520,16 +525,37 @@ const ProfileDrawer = ({ isOpen, onClose, openVoucherModal }: ProfileDrawerProps
                 <option value="Khác">{t[language].other}</option>
               </select>
             </div>
-            <div className="flex justify-between items-center py-5 border-b border-gray-100">
-              <span className="text-gray-500 text-[15px]">{t[language].email}</span>
-              <input 
-                type="email" 
-                value={editForm.email} 
-                onChange={(e) => setEditForm({...editForm, email: e.target.value})}
-                disabled={userProfile?.email_verified}
-                className={`text-right text-[15px] font-medium outline-none bg-transparent w-[60%] truncate ${userProfile?.email_verified ? 'text-gray-400 cursor-not-allowed' : 'text-gray-900'}`} 
-              />
+            
+            <div className="flex flex-col py-3 border-b border-gray-100">
+              <div className="flex justify-between items-center py-2">
+                <span className="text-gray-500 text-[15px] shrink-0">{t[language].email}</span>
+                <div className="flex items-center gap-2 flex-1 justify-end truncate ml-4">
+                  <input 
+                    type="email" 
+                    value={editForm.email} 
+                    onChange={(e) => setEditForm({...editForm, email: e.target.value})}
+                    disabled={userProfile?.email_verified}
+                    className={`text-right text-[15px] font-medium outline-none bg-transparent w-full truncate ${userProfile?.email_verified ? 'text-gray-400 cursor-not-allowed' : 'text-gray-900'}`} 
+                  />
+                </div>
+              </div>
+              {userProfile && !userProfile.email_verified && (
+                <div className="flex justify-end mt-1 mb-2">
+                  <button 
+                    onClick={(e) => {
+                      e.preventDefault();
+                      handleResendVerification();
+                    }}
+                    disabled={resending}
+                    className="text-[13px] text-amber-600 font-medium hover:underline flex items-center gap-1.5"
+                  >
+                    <AlertCircle className="w-3.5 h-3.5" />
+                    {resending ? 'Đang gửi email...' : 'Nhấn để xác thực email'}
+                  </button>
+                </div>
+              )}
             </div>
+
             <div className="flex justify-between items-center py-5 border-b border-gray-100">
               <span className="text-gray-500 text-[15px]">{t[language].password}</span>
               <button onClick={() => setView('password')} className="text-[#00a662] text-[15px] font-medium hover:underline">{t[language].changePassword}</button>

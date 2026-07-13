@@ -119,24 +119,6 @@ const Layout = () => {
 
       {/* Main Content */}
       <main className="flex-1 w-full max-w-[1200px] mx-auto p-4 sm:p-6 pb-24 md:pb-6">
-        {user && !user.email_verified && (
-          <div className="mb-6 bg-amber-50 border border-amber-200 p-4 rounded-xl flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between shadow-sm animate-in fade-in slide-in-from-top-4">
-            <div>
-              <h4 className="text-amber-800 font-bold text-lg mb-1 flex items-center gap-2">
-                <AlertCircle className="w-5 h-5" />
-                Xác thực địa chỉ email
-              </h4>
-              <p className="text-amber-700 text-sm ml-7">Vui lòng kiểm tra email của bạn để xác thực tài khoản. Một số tính năng như đặt bàn, nạp ví có thể bị giới hạn nếu chưa xác thực.</p>
-            </div>
-            <button 
-              onClick={handleResendVerification}
-              disabled={resending}
-              className="sm:ml-4 ml-7 shrink-0 bg-amber-500 text-white hover:bg-amber-600 font-semibold px-4 py-2 rounded-lg transition-colors text-sm shadow-md disabled:opacity-70 disabled:cursor-not-allowed"
-            >
-              {resending ? 'Đang gửi...' : 'Gửi lại email'}
-            </button>
-          </div>
-        )}
         <Outlet context={{ openVoucherModal: () => setIsVoucherModalOpen(true) }} />
       </main>
 
