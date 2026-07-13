@@ -132,18 +132,6 @@ const ProfileDrawer = ({ isOpen, onClose, openVoucherModal }: ProfileDrawerProps
   const [userProfile, setUserProfile] = useState<any>(user);
   const [resending, setResending] = useState(false);
 
-  const handleResendVerification = async () => {
-    if (!user || resending) return;
-    setResending(true);
-    try {
-      await api.post('/customer/auth/request-verification');
-      alert('Đã gửi lại email xác thực. Vui lòng kiểm tra hộp thư của bạn.');
-    } catch (err: any) {
-      alert(err.response?.data?.message || 'Có lỗi xảy ra khi gửi lại email.');
-    } finally {
-      setResending(false);
-    }
-  };
 
   /* const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -541,9 +529,22 @@ const ProfileDrawer = ({ isOpen, onClose, openVoucherModal }: ProfileDrawerProps
               {userProfile && !userProfile.email_verified && (
                 <div className="flex justify-end mt-1 mb-2">
                   <button 
-                    onClick={(e) => {
+                    onClick={async (e) => {
                       e.preventDefault();
-                      handleResendVerification();
+                      if (editForm.email !== userProfile.email) {
+                        alert('Vui lòng nhấn Lưu để cập nhật email trước khi xác thực.');
+                        return;
+                      }
+                      if (!user || resending) return;
+                      setResending(true);
+                      try {
+                        await api.post('/customer/auth/request-verification');
+                        alert('Đã gửi lại email xác thực. Vui lòng kiểm tra hộp thư của bạn.');
+                      } catch (err: any) {
+                        alert(err.response?.data?.message || err.message || 'Có lỗi xảy ra khi gửi lại email.');
+                      } finally {
+                        setResending(false);
+                      }
                     }}
                     disabled={resending}
                     className="text-[13px] text-amber-600 font-medium hover:underline flex items-center gap-1.5"
