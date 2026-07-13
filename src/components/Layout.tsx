@@ -1,5 +1,5 @@
 import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
-import { Gift, Home, Grid, Calendar as CalendarIcon, QrCode, User, AlertCircle } from 'lucide-react';
+import { Gift, Home, Grid, Calendar as CalendarIcon, QrCode, User } from 'lucide-react';
 import VoucherModal from './VoucherModal';
 import ProfileDrawer from './ProfileDrawer';
 import PaymentModal from './PaymentModal';
@@ -14,22 +14,7 @@ const Layout = () => {
   const [isVoucherModalOpen, setIsVoucherModalOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isQrModalOpen, setIsQrModalOpen] = useState(false);
-  const [resending, setResending] = useState(false);
-  
   const { user, refreshProfile } = useAuth();
-
-  const handleResendVerification = async () => {
-    if (!user || resending) return;
-    setResending(true);
-    try {
-      await api.post('/customer/auth/request-verification');
-      alert('Đã gửi lại email xác thực. Vui lòng kiểm tra hộp thư của bạn.');
-    } catch (err: any) {
-      alert(err.response?.data?.message || 'Có lỗi xảy ra khi gửi lại email.');
-    } finally {
-      setResending(false);
-    }
-  };
 
   useEffect(() => {
     const handleProfileUpdate = () => {
