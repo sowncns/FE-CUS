@@ -544,6 +544,10 @@ const ProfileDrawer = ({ isOpen, onClose, openVoucherModal }: ProfileDrawerProps
                   <button 
                     onClick={(e) => {
                       e.preventDefault();
+                      if (editForm.email !== userProfile.email) {
+                        alert('Vui lòng nhấn Lưu để cập nhật email trước khi xác thực.');
+                        return;
+                      }
                       handleResendVerification();
                     }}
                     disabled={resending}
