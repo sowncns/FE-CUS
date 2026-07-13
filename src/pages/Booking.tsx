@@ -171,6 +171,11 @@ const Booking = () => {
           quantity: c.quantity
         }));
         
+        const totalAmount = customPreorder.reduce((sum, c) => sum + (Number(c.item.price) * c.quantity), 0);
+        const depositAmount = totalAmount * 0.3; // 30% deposit rate
+        reservationPayload.display_deposit_amount = depositAmount;
+        reservationPayload.display_total_amount = totalAmount;
+        
         // Cần thanh toán cọc -> Hiện PIN Modal
         setPendingReservation(reservationPayload);
         setShowPinModal(true);
@@ -610,9 +615,21 @@ const Booking = () => {
             
             <div className="text-center px-6 mb-2">
               <h3 className="text-xl font-bold text-gray-800 mb-2">Xác nhận đặt cọc</h3>
-              <p className="text-sm text-gray-500">
-                Nhà hàng yêu cầu thanh toán cọc cho đơn đặt trước. Nhập mã PIN để tiếp tục.
+              <p className="text-sm text-gray-500 mb-4">
+                Nhà hàng yêu cầu thanh toán cọc 30% cho đơn đặt trước. Nhập mã PIN để tiếp tục.
               </p>
+              
+              {pendingReservation?.display_deposit_amount && (
+                <div className="bg-amber-50 rounded-2xl p-4 border border-amber-100 flex flex-col mb-4 mx-4">
+                  <span className="text-xs text-amber-700/70 uppercase font-bold tracking-wider mb-1">Số tiền cọc cần thanh toán</span>
+                  <span className="text-[26px] font-black text-amber-600">
+                    {new Intl.NumberFormat('vi-VN').format(pendingReservation.display_deposit_amount)}đ
+                  </span>
+                  <span className="text-[11px] text-amber-700/50 mt-1 font-medium">
+                    (Tổng món: {new Intl.NumberFormat('vi-VN').format(pendingReservation.display_total_amount)}đ)
+                  </span>
+                </div>
+              )}
             </div>
             
             <PinVerification 
