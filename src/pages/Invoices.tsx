@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Receipt, X, AlertCircle, ChevronRight, CheckCircle } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Receipt, X, AlertCircle, CheckCircle } from 'lucide-react';
 import api from '../lib/api';
 import PinVerification from '../components/PinVerification';
 
@@ -9,11 +9,9 @@ export default function Invoices() {
   const [transactions, setTransactions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [showPinModal, setShowPinModal] = useState(false);
-  const [submitting, setSubmitting] = useState(false);
 
   const [activeTab, setActiveTab] = useState<'pending' | 'history' | 'wallet'>('pending');
   const [selectedInvoice, setSelectedInvoice] = useState<any>(null);
-  const [loadingInvoice, setLoadingInvoice] = useState(false);
 
   useEffect(() => {
     fetchData();
@@ -46,7 +44,6 @@ export default function Invoices() {
 
   const handleConfirmPayment = async (pin: string) => {
     if (!pendingPayment) return;
-    setSubmitting(true);
     try {
       await api.post('/customer/qr-payment/confirm', {
         requestId: pendingPayment.requestId,
@@ -60,14 +57,11 @@ export default function Invoices() {
       fetchData();
     } catch (err: any) {
       alert(err.response?.data?.message || 'Có lỗi xảy ra');
-    } finally {
-      setSubmitting(false);
     }
   };
 
   const handleRejectPayment = async () => {
     try {
-      setSubmitting(true);
       await api.post('/customer/qr-payment/confirm', {
         requestId: pendingPayment.id,
         action: 'REJECT'
@@ -76,20 +70,15 @@ export default function Invoices() {
       fetchData();
     } catch (err: any) {
       alert(err.response?.data?.message || err.message || "Lỗi");
-    } finally {
-      setSubmitting(false);
     }
   };
 
   const handleViewInvoice = async (invoiceId: number) => {
     try {
-      setLoadingInvoice(true);
       const res: any = await api.get(`/customer/qr-payment/invoices/${invoiceId}`);
       setSelectedInvoice(res);
     } catch (err) {
       alert("Không thể tải chi tiết hóa đơn");
-    } finally {
-      setLoadingInvoice(false);
     }
   };
 
@@ -256,9 +245,9 @@ export default function Invoices() {
             </button>
             <div className="p-6">
               <PinVerification 
-                mode="RETURN_PIN"
+                mode="VERIFY"
                 onSuccess={() => {}}
-                onCompleteWithPin={(pin) => handleConfirmPayment(pin)}
+                onSubmitPin={(pin: string) => handleConfirmPayment(pin)}
               />
             </div>
           </div>

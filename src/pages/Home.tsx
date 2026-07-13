@@ -61,22 +61,45 @@ const Home = () => {
   );
   const [currentSlide, setCurrentSlide] = useState(0);
   const [vouchers, setVouchers] = useState<any[]>([]);
-  const [promotions, setPromotions] = useState<any[]>([]);
-  const [banners, setBanners] = useState<any[]>([]);
+  const [promotions] = useState<any[]>([]);
   const { user } = useAuth();
   const [balance, setBalance] = useState<number>(0);
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
   const vouchersRef = useRef<HTMLDivElement>(null);
   const promosRef = useRef<HTMLDivElement>(null);
   
-  // Use fetched banners or fallback to default images
-  const BANNER_IMAGES = banners.length > 0 
-    ? banners.map((banner) => banner.image_url || banner.file_url) 
-    : [
-        'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&q=80&w=1200&h=400',
-        'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&q=80&w=1200&h=400',
-        'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&q=80&w=1200&h=400',
-      ];
+  const HERO_SLIDES = [
+    {
+      image: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&q=80&w=1200&h=400',
+      title: { vi: 'Thưởng Thức Ẩm Thực Đỉnh Cao', en: 'Savor the Ultimate Cuisine' },
+      desc: { vi: 'Khám phá ưu đãi lên đến 50% hôm nay', en: 'Discover up to 50% off today' }
+    },
+    {
+      image: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&q=80&w=1200&h=400',
+      title: { vi: 'Không Gian Sang Trọng', en: 'Luxurious Atmosphere' },
+      desc: { vi: 'Trải nghiệm không gian đẳng cấp, lãng mạn', en: 'Experience high-class, romantic spaces' }
+    },
+    {
+      image: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&q=80&w=1200&h=400',
+      title: { vi: 'Thực Đơn Đa Dạng', en: 'Diverse Menu' },
+      desc: { vi: 'Tinh hoa ẩm thực từ các đầu bếp hàng đầu', en: 'Culinary essence from top chefs' }
+    },
+    {
+      image: 'https://images.unsplash.com/photo-1544025162-831e7fce95af?auto=format&fit=crop&q=80&w=1200&h=400',
+      title: { vi: 'Thịt Bò Thượng Hạng', en: 'Premium Wagyu Beef' },
+      desc: { vi: 'Từng thớ thịt mềm mọng tan chảy trong miệng', en: 'Melt-in-your-mouth tenderness' }
+    },
+    {
+      image: 'https://images.unsplash.com/photo-1554502078-ef0fd4aca294?auto=format&fit=crop&q=80&w=1200&h=400',
+      title: { vi: 'Hải Sản Tươi Sống', en: 'Fresh Seafood Catch' },
+      desc: { vi: 'Hương vị biển khơi đánh bắt mỗi ngày', en: 'Taste the ocean, caught fresh daily' }
+    },
+    {
+      image: 'https://images.unsplash.com/photo-1514933651103-005eec06c04b?auto=format&fit=crop&q=80&w=1200&h=400',
+      title: { vi: 'Dịch Vụ Tận Tâm', en: 'Dedicated Service' },
+      desc: { vi: 'Phục vụ chu đáo, mang đến sự hài lòng tuyệt đối', en: 'Attentive service for complete satisfaction' }
+    }
+  ];
 
   useEffect(() => {
     const handleLangChange = () => setLanguage((localStorage.getItem('app_language') as 'vi' | 'en') || 'vi');
@@ -85,12 +108,11 @@ const Home = () => {
   }, []);
 
   useEffect(() => {
-    if (BANNER_IMAGES.length === 0) return;
     const timer = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % BANNER_IMAGES.length);
+      setCurrentSlide((prev) => (prev + 1) % HERO_SLIDES.length);
     }, 4000);
     return () => clearInterval(timer);
-  }, [BANNER_IMAGES.length]);
+  }, []);
 
   useEffect(() => {
     const fetchVouchers = async () => {
@@ -177,18 +199,18 @@ const Home = () => {
           className="flex h-full w-full transition-transform duration-700 ease-in-out"
           style={{ transform: `translateX(-${currentSlide * 100}%)` }}
         >
-          {BANNER_IMAGES.map((img, index) => (
+          {HERO_SLIDES.map((slide, index) => (
             <div 
               key={index}
               className="w-full h-full flex-shrink-0 relative"
             >
-              <img src={img} alt="Banner" className="w-full h-full object-cover" />
+              <img src={slide.image} alt="Banner" className="w-full h-full object-cover" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent flex flex-col justify-end p-8 sm:p-12">
                 <h2 className="text-white text-3xl sm:text-5xl font-bold mb-4 transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
-                  {t[language].heroTitle}
+                  {slide.title[language]}
                 </h2>
                 <p className="text-gray-200 text-lg sm:text-xl transform translate-y-4 opacity-0 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-500 delay-100">
-                  {t[language].heroDesc}
+                  {slide.desc[language]}
                 </p>
               </div>
             </div>
@@ -196,7 +218,7 @@ const Home = () => {
         </div>
         {/* Dots Navigation */}
         <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2">
-          {BANNER_IMAGES.map((_, idx) => (
+          {HERO_SLIDES.map((_, idx) => (
             <button 
               key={idx}
               onClick={() => setCurrentSlide(idx)}
@@ -261,8 +283,14 @@ const Home = () => {
         <h3 className="text-2xl font-bold text-gray-800 mb-6">{t[language].whatToEat}</h3>
         <div ref={promosRef} className="flex overflow-x-auto gap-4 md:gap-6 pb-4 snap-x snap-mandatory hide-scrollbar scroll-smooth">
           {(promotions.length > 0 ? promotions : [
-            { title: 'Thưởng thức Iga Wagyu Thượng Hạng', title_en: 'Enjoy Premium Iga Wagyu', image_url: 'https://images.unsplash.com/photo-1544025162-831e7fce95af?auto=format&fit=crop&q=80&w=800&h=500' },
-            { title: 'Trải nghiệm Shojin Ryori Tinh Tế', title_en: 'Exquisite Shojin Ryori Experience', image_url: 'https://images.unsplash.com/photo-1580828369018-0288cba8c6dc?auto=format&fit=crop&q=80&w=800&h=500' },
+            { title: 'Bò Wagyu Nướng Đá', title_en: 'Stone-Grilled Wagyu', image_url: 'https://images.unsplash.com/photo-1600891964092-4316c288032e?auto=format&fit=crop&q=80&w=800&h=500' },
+            { title: 'Sashimi Thuyền Lớn', title_en: 'Premium Sashimi Boat', image_url: 'https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?auto=format&fit=crop&q=80&w=800&h=500' },
+            { title: 'Cá Hồi Áp Chảo Măng Tây', title_en: 'Pan-Seared Salmon', image_url: 'https://images.unsplash.com/photo-1467003909585-2f8a72700288?auto=format&fit=crop&q=80&w=800&h=500' },
+            { title: 'Salad Tôm Hùm Truffle', title_en: 'Truffle Lobster Salad', image_url: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&q=80&w=800&h=500' },
+            { title: 'Sushi Bụng Cá Ngừ', title_en: 'Fatty Tuna Sushi', image_url: 'https://images.unsplash.com/photo-1553621042-f6e147245754?auto=format&fit=crop&q=80&w=800&h=500' },
+            { title: 'Mì Ramen Đặc Biệt', title_en: 'Special Ramen', image_url: 'https://images.unsplash.com/photo-1552611052-33e04de081de?auto=format&fit=crop&q=80&w=800&h=500' },
+            { title: 'Dimsum Tổng Hợp', title_en: 'Assorted Dimsum', image_url: 'https://images.unsplash.com/photo-1496116218417-1a781b1c416c?auto=format&fit=crop&q=80&w=800&h=500' },
+            { title: 'Tráng Miệng Ý', title_en: 'Italian Dessert', image_url: 'https://images.unsplash.com/photo-1571115177098-24ec42ed204d?auto=format&fit=crop&q=80&w=800&h=500' },
           ]).map((promo, idx) => (
             <div key={promo.id || idx} className="relative w-full sm:w-[320px] md:w-[400px] h-[200px] md:h-[250px] shrink-0 snap-start rounded-3xl overflow-hidden group cursor-pointer shadow-sm hover:shadow-xl transition-all">
               <img 
@@ -270,7 +298,7 @@ const Home = () => {
                 alt={promo.title || promo.name} 
                 className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700" 
                 onError={(e) => {
-                  e.currentTarget.src = BANNER_IMAGES[idx % BANNER_IMAGES.length];
+                  e.currentTarget.src = 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&q=80&w=800&h=500';
                 }}
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent flex flex-col justify-end p-5 md:p-6">
