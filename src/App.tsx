@@ -10,6 +10,7 @@ import IGoCard from './pages/IGoCard';
 import Topup from './pages/Topup';
 import ReservationHistory from './pages/ReservationHistory';
 import VerifyEmail from './pages/VerifyEmail';
+import ResetPassword from './pages/ResetPassword';
 import Invoices from './pages/Invoices';
 
 function App() {
@@ -21,6 +22,7 @@ function App() {
           <Route path="login" element={<Login />} />
           <Route path="signup" element={<Signup />} />
           <Route path="verify-email" element={<VerifyEmail />} />
+          <Route path="reset-password" element={<ResetPassword />} />
           <Route path="brands" element={<Brands />} />
           <Route path="booking" element={<Booking />} />
           <Route path="booking/history" element={<ReservationHistory />} />
