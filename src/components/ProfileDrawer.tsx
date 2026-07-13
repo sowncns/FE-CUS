@@ -533,9 +533,8 @@ const ProfileDrawer = ({ isOpen, onClose, openVoucherModal }: ProfileDrawerProps
                   <input 
                     type="email" 
                     value={editForm.email} 
-                    onChange={(e) => setEditForm({...editForm, email: e.target.value})}
-                    disabled={userProfile?.email_verified}
-                    className={`text-right text-[15px] font-medium outline-none bg-transparent w-full truncate ${userProfile?.email_verified ? 'text-gray-400 cursor-not-allowed' : 'text-gray-900'}`} 
+                    disabled={true}
+                    className="text-right text-[15px] font-medium outline-none bg-transparent w-full truncate text-gray-400 cursor-not-allowed" 
                   />
                 </div>
               </div>
@@ -544,10 +543,6 @@ const ProfileDrawer = ({ isOpen, onClose, openVoucherModal }: ProfileDrawerProps
                   <button 
                     onClick={(e) => {
                       e.preventDefault();
-                      if (editForm.email !== userProfile.email) {
-                        alert('Vui lòng nhấn Lưu để cập nhật email trước khi xác thực.');
-                        return;
-                      }
                       handleResendVerification();
                     }}
                     disabled={resending}
