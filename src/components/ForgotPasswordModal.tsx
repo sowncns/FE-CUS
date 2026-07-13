@@ -30,7 +30,8 @@ const ForgotPasswordModal = ({ isOpen, onClose }: ForgotPasswordModalProps) => {
       await api.post('/customer/auth/forgot-password', { usernameOrEmail });
       setMessage('Yêu cầu khôi phục mật khẩu đã được gửi. Vui lòng kiểm tra email của bạn.');
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Có lỗi xảy ra, vui lòng thử lại.');
+      const msg = typeof err.response?.data === 'string' ? err.response.data : err.response?.data?.message;
+      setError(msg || err.message || 'Có lỗi xảy ra, vui lòng thử lại.');
     } finally {
       setLoading(false);
     }
