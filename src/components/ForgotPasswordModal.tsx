@@ -21,7 +21,7 @@ const ForgotPasswordModal = ({ isOpen, onClose }: ForgotPasswordModalProps) => {
     setMessage('');
 
     if (!usernameOrEmail) {
-      setError('Vui lòng nhập tên đăng nhập hoặc email');
+      setError('Vui lòng nhập tên đăng nhập');
       return;
     }
 
@@ -49,7 +49,7 @@ const ForgotPasswordModal = ({ isOpen, onClose }: ForgotPasswordModalProps) => {
 
         <h3 className="text-2xl font-bold text-gray-800 mb-2">Quên mật khẩu</h3>
         <p className="text-gray-600 mb-6 text-sm">
-          Nhập tên đăng nhập hoặc email của bạn để nhận hướng dẫn khôi phục mật khẩu.
+          Nhập tên đăng nhập của bạn để nhận hướng dẫn khôi phục mật khẩu.
         </p>
 
         {error && (
@@ -67,7 +67,7 @@ const ForgotPasswordModal = ({ isOpen, onClose }: ForgotPasswordModalProps) => {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Tên đăng nhập / Email
+              Tên đăng nhập
             </label>
             <input 
               type="text" 

@@ -15,8 +15,6 @@ export default function Invoices() {
 
   useEffect(() => {
     fetchData();
-    const interval = setInterval(fetchData, 5000);
-    return () => clearInterval(interval);
   }, []);
 
   const fetchData = async () => {
@@ -27,7 +25,7 @@ export default function Invoices() {
         api.get('/customer/profile/transactions').catch(() => ({ data: { transactions: [] } }))
       ]);
       if ((pendingRes as any).hasPending) {
-        setPendingPayment((pendingRes as any).payment);
+        setPendingPayment(pendingRes);
       } else {
         setPendingPayment(null);
       }
@@ -63,7 +61,7 @@ export default function Invoices() {
   const handleRejectPayment = async () => {
     try {
       await api.post('/customer/qr-payment/confirm', {
-        requestId: pendingPayment.id,
+        requestId: pendingPayment.requestId,
         action: 'REJECT'
       });
       alert("Đã từ chối thanh toán");

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import api from '../lib/api';
+import api, { API_BASE_URL } from '../lib/api';
 import { CheckCircle } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -12,22 +12,22 @@ const PaymentModal = () => {
   useEffect(() => {
     if (!user || !user.has_payment_pin) return;
 
-    const interval = setInterval(async () => {
-      // Don't poll if we already have a pending request on screen
-      if (paymentReq) return;
-
+    // SSE push: server chu dong bao khi co yeu cau thanh toan -> khong con polling.
+    // EventSource tu dong reconnect; luc reconnect server gui lai trang thai hien tai.
+    const es = new EventSource(`${API_BASE_URL}/api/customer/qr-payment/stream`, {
+      withCredentials: true,
+    });
+    es.addEventListener('pending', (e) => {
       try {
-        const res: any = await api.get('/customer/qr-payment/pending');
-        if (res.hasPending && res.payment) {
-          setPaymentReq(res.payment);
-        }
-      } catch (err) {
-        console.error("Polling payment error", err);
+        const data = JSON.parse((e as MessageEvent).data);
+        setPaymentReq((prev: any) => prev || data); // khong ghi de yeu cau dang hien
+      } catch {
+        /* bo qua ban tin loi */
       }
-    }, 3000);
+    });
 
-    return () => clearInterval(interval);
-  }, [paymentReq, user]);
+    return () => es.close();
+  }, [user]);
 
   if (!paymentReq) return null;
 

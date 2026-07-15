@@ -11,54 +11,11 @@ import { useAuth } from '../contexts/AuthContext';
 // ];
 
 
-const t = {
-  vi: {
-    heroTitle: "Thưởng Thức Ẩm Thực Đỉnh Cao",
-    heroDesc: "Khám phá ưu đãi lên đến 50% hôm nay",
-    gifts: "Quà tặng",
-    topup: "Nạp tiền",
-    igoCard: "Thẻ iGo",
-    contact: "Liên hệ",
-    vouchersForYou: "Voucher dành riêng bạn",
-    seeAll: "Xem tất cả",
-    whatToEat: "Hôm nay ăn gì?",
-    promoTag: "Ưu đãi",
-    walletBalance: "Số dư ví",
-    expireIn: "Hết hạn trong",
-    expireAt: "HSD:",
-    days: "ngày",
-    contactUs: "Liên hệ với chúng tôi",
-    callUs: "Gọi điện thoại",
-    emailUs: "Gửi Email",
-    facebook: "Fanpage Facebook",
-  },
-  en: {
-    heroTitle: "Savor the Ultimate Cuisine",
-    heroDesc: "Discover up to 50% off today",
-    gifts: "Gifts",
-    topup: "Top up",
-    igoCard: "iGo Card",
-    contact: "Contact",
-    vouchersForYou: "Vouchers just for you",
-    seeAll: "See all",
-    whatToEat: "What to eat today?",
-    promoTag: "Promo",
-    walletBalance: "Wallet Balance",
-    expireIn: "Expires in",
-    expireAt: "Exp:",
-    days: "days",
-    contactUs: "Contact Us",
-    callUs: "Call Us",
-    emailUs: "Send Email",
-    facebook: "Facebook Page",
-  }
-};
+
 
 const Home = () => {
   const navigate = useNavigate();
-  const [language, setLanguage] = useState<'vi' | 'en'>(
-    (localStorage.getItem('app_language') as 'vi' | 'en') || 'vi'
-  );
+
   const [currentSlide, setCurrentSlide] = useState(0);
   const [vouchers, setVouchers] = useState<any[]>([]);
   const [promotions] = useState<any[]>([]);
@@ -101,11 +58,7 @@ const Home = () => {
     }
   ];
 
-  useEffect(() => {
-    const handleLangChange = () => setLanguage((localStorage.getItem('app_language') as 'vi' | 'en') || 'vi');
-    window.addEventListener('languageChanged', handleLangChange);
-    return () => window.removeEventListener('languageChanged', handleLangChange);
-  }, []);
+
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -173,9 +126,9 @@ const Home = () => {
   ];
 
   const MOCK_VOUCHERS = [
-    { id: 'v1', brand: 'ASANOHA', title: 'Giảm 20%', desc: 'Tối đa 100k', expiry: `${t[language].expireIn} 3 ${t[language].days}`, ...VOUCHER_THEMES[0] },
-    { id: 'v2', brand: 'SOM ตำ THAI', title: 'Tặng Món', desc: 'Gỏi đu đủ', expiry: `${t[language].expireIn} 5 ${t[language].days}`, ...VOUCHER_THEMES[1] },
-    { id: 'v3', brand: 'RAMEN ICHIBANKEN', title: 'Giảm 50K', desc: 'Đơn từ 300k', expiry: `${t[language].expireIn} 7 ${t[language].days}`, ...VOUCHER_THEMES[2] },
+    { id: 'v1', brand: 'ASANOHA', title: 'Giảm 20%', desc: 'Tối đa 100k', expiry: `${"Hết hạn trong"} 3 ${"ngày"}`, ...VOUCHER_THEMES[0] },
+    { id: 'v2', brand: 'SOM ตำ THAI', title: 'Tặng Món', desc: 'Gỏi đu đủ', expiry: `${"Hết hạn trong"} 5 ${"ngày"}`, ...VOUCHER_THEMES[1] },
+    { id: 'v3', brand: 'RAMEN ICHIBANKEN', title: 'Giảm 50K', desc: 'Đơn từ 300k', expiry: `${"Hết hạn trong"} 7 ${"ngày"}`, ...VOUCHER_THEMES[2] },
   ];
 
   const displayVouchers = vouchers.length > 0 ? vouchers.map((v, i) => {
@@ -184,9 +137,9 @@ const Home = () => {
     return {
       id: v.customer_voucher_id,
       brand: v.code || 'iGOURMET',
-      title: language === 'en' && v.name_en ? v.name_en : v.name,
-      desc: language === 'en' && v.description_en ? v.description_en : v.description,
-      expiry: `${t[language].expireAt} ${formattedDate}`,
+      title: v.name,
+      desc: v.description,
+      expiry: `${"HSD:"} ${formattedDate}`,
       ...VOUCHER_THEMES[i % VOUCHER_THEMES.length]
     };
   }) : MOCK_VOUCHERS;
@@ -207,10 +160,10 @@ const Home = () => {
               <img src={slide.image} alt="Banner" className="w-full h-full object-cover" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent flex flex-col justify-end p-8 sm:p-12">
                 <h2 className="text-white text-3xl sm:text-5xl font-bold mb-4 transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
-                  {slide.title[language]}
+                  {slide.title.vi}
                 </h2>
                 <p className="text-gray-200 text-lg sm:text-xl transform translate-y-4 opacity-0 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-500 delay-100">
-                  {slide.desc[language]}
+                  {slide.desc.vi}
                 </p>
               </div>
             </div>
@@ -231,10 +184,10 @@ const Home = () => {
       {/* Action Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
-          { icon: Gift, title: t[language].gifts, color: 'text-rose-500', action: openVoucherModal },
-          { icon: Wallet, title: t[language].topup, color: 'text-blue-500', action: () => navigate('/topup') },
-          { icon: CreditCard, title: t[language].igoCard, color: 'text-amber-500', action: () => navigate('/igo-card') },
-          { icon: Phone, title: t[language].contact, color: 'text-emerald-500', action: () => setIsContactModalOpen(true) },
+          { icon: Gift, title: "Quà tặng", color: 'text-rose-500', action: openVoucherModal },
+          { icon: Wallet, title: "Nạp tiền", color: 'text-blue-500', action: () => navigate('/topup') },
+          { icon: CreditCard, title: "Thẻ iGo", color: 'text-amber-500', action: () => navigate('/igo-card') },
+          { icon: Phone, title: "Liên hệ", color: 'text-emerald-500', action: () => setIsContactModalOpen(true) },
         ].map((item, idx) => (
           <div 
             key={idx} 
@@ -250,9 +203,9 @@ const Home = () => {
       {/* Vouchers Section */}
       <div>
         <div className="flex justify-between items-end mb-6">
-          <h3 className="text-2xl font-bold text-gray-800">{t[language].vouchersForYou}</h3>
+          <h3 className="text-2xl font-bold text-gray-800">{"Voucher dành riêng bạn"}</h3>
           <button onClick={openVoucherModal} className="text-primary hover:underline text-sm font-medium flex items-center">
-            {t[language].seeAll} <ChevronRight className="w-4 h-4" />
+            {"Xem tất cả"} <ChevronRight className="w-4 h-4" />
           </button>
         </div>
         <div ref={vouchersRef} className="flex overflow-x-auto gap-4 md:gap-6 pb-4 snap-x snap-mandatory hide-scrollbar scroll-smooth">
@@ -280,7 +233,7 @@ const Home = () => {
 
       {/* Food Promos */}
       <div>
-        <h3 className="text-2xl font-bold text-gray-800 mb-6">{t[language].whatToEat}</h3>
+        <h3 className="text-2xl font-bold text-gray-800 mb-6">{"Hôm nay ăn gì?"}</h3>
         <div ref={promosRef} className="flex overflow-x-auto gap-4 md:gap-6 pb-4 snap-x snap-mandatory hide-scrollbar scroll-smooth">
           {(promotions.length > 0 ? promotions : [
             { title: 'Bò Wagyu Nướng Đá', title_en: 'Stone-Grilled Wagyu', image_url: 'https://images.unsplash.com/photo-1600891964092-4316c288032e?auto=format&fit=crop&q=80&w=800&h=500' },
@@ -303,14 +256,14 @@ const Home = () => {
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent flex flex-col justify-end p-5 md:p-6">
                 <span className="inline-block px-3 py-1 bg-[#00a662] text-white text-[10px] font-bold rounded-full w-max mb-2 uppercase tracking-wide">
-                  {t[language].promoTag}
+                  {"Ưu đãi"}
                 </span>
                 <h4 className="text-white text-lg md:text-2xl font-bold leading-tight">
-                  {language === 'en' && promo.title_en ? promo.title_en : (promo.title || promo.name)}
+                  {promo.title || promo.name}
                 </h4>
                 {(promo.description || promo.description_en) && (
                   <p className="text-gray-300 text-xs md:text-sm mt-1 line-clamp-2">
-                    {language === 'en' && promo.description_en ? promo.description_en : promo.description}
+                    {promo.description}
                   </p>
                 )}
               </div>
@@ -326,7 +279,7 @@ const Home = () => {
       >
         <Wallet className="w-5 h-5 md:w-6 md:h-6 group-hover:rotate-12 transition-transform" />
         <div className="flex flex-col items-start">
-          <span className="text-[10px] md:text-xs font-medium text-white/80">{t[language].walletBalance}</span>
+          <span className="text-[10px] md:text-xs font-medium text-white/80">{"Số dư ví"}</span>
           <span className="font-bold text-sm md:text-lg leading-none">{balance.toLocaleString('vi-VN')}đ</span>
         </div>
       </button>
@@ -336,7 +289,7 @@ const Home = () => {
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm" onClick={() => setIsContactModalOpen(false)}>
           <div className="bg-white rounded-2xl w-full max-w-sm overflow-hidden shadow-2xl" onClick={e => e.stopPropagation()}>
             <div className="flex justify-between items-center p-4 border-b">
-              <h3 className="text-lg font-bold text-gray-800">{t[language].contactUs}</h3>
+              <h3 className="text-lg font-bold text-gray-800">{"Liên hệ với chúng tôi"}</h3>
               <button onClick={() => setIsContactModalOpen(false)} className="text-gray-400 hover:text-gray-700 p-1">
                 <X className="w-5 h-5" />
               </button>
@@ -347,7 +300,7 @@ const Home = () => {
                   <Phone className="w-5 h-5" />
                 </div>
                 <div>
-                  <div className="font-semibold text-gray-800">{t[language].callUs}</div>
+                  <div className="font-semibold text-gray-800">{"Gọi điện thoại"}</div>
                   <div className="text-sm text-gray-500">1900 1234</div>
                 </div>
               </a>
@@ -357,7 +310,7 @@ const Home = () => {
                   <Mail className="w-5 h-5" />
                 </div>
                 <div>
-                  <div className="font-semibold text-gray-800">{t[language].emailUs}</div>
+                  <div className="font-semibold text-gray-800">{"Gửi Email"}</div>
                   <div className="text-sm text-gray-500">contact@igourmet.com</div>
                 </div>
               </a>
@@ -367,7 +320,7 @@ const Home = () => {
                   <MessageCircle className="w-5 h-5" />
                 </div>
                 <div>
-                  <div className="font-semibold text-gray-800">{t[language].facebook}</div>
+                  <div className="font-semibold text-gray-800">{"Fanpage Facebook"}</div>
                   <div className="text-sm text-gray-500">@igourmet.vn</div>
                 </div>
               </a>

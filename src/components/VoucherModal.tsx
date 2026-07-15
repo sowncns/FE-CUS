@@ -36,7 +36,47 @@ const VoucherModal = ({ isOpen, onClose }: VoucherModalProps) => {
   const [error, setError] = useState('');
   const [selectedVoucher, setSelectedVoucher] = useState<Voucher | null>(null);
 
+  // QR token 1 lần cho nhân viên quét (gắn khách -> cashback + tích điểm khi thanh toán)
+  const [scanToken, setScanToken] = useState<string | null>(null);
+  const [tokenLoading, setTokenLoading] = useState(false);
+  const [tokenError, setTokenError] = useState('');
+  const [timeLeft, setTimeLeft] = useState(0);
+
   const { user } = useAuth();
+
+  const openVoucher = async (v: Voucher) => {
+    setSelectedVoucher(v);
+    setScanToken(null);
+    setTokenError('');
+    setTimeLeft(0);
+    setTokenLoading(true);
+    try {
+      const res: any = await api.post('/customer/qr-payment/scan-token', {
+        kind: 'voucher',
+        customerVoucherId: v.customer_voucher_id,
+      });
+      setScanToken(res.token);
+      setTimeLeft(res.expiresIn || 120);
+    } catch (err: any) {
+      setTokenError(err.response?.data?.message || 'Không thể tạo mã QR voucher.');
+    } finally {
+      setTokenLoading(false);
+    }
+  };
+
+  const closeVoucher = () => {
+    setSelectedVoucher(null);
+    setScanToken(null);
+    setTokenError('');
+    setTimeLeft(0);
+  };
+
+  // Đếm ngược hết hạn token.
+  useEffect(() => {
+    if (!scanToken || timeLeft <= 0) return;
+    const t = setInterval(() => setTimeLeft((s) => (s <= 1 ? 0 : s - 1)), 1000);
+    return () => clearInterval(t);
+  }, [scanToken, timeLeft]);
 
   useEffect(() => {
     if (isOpen) {
@@ -121,7 +161,7 @@ const VoucherModal = ({ isOpen, onClose }: VoucherModalProps) => {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 md:gap-8">
               {filteredVouchers.map((v, idx) => (
-                <div key={v.customer_voucher_id} className="group cursor-pointer" onClick={() => setSelectedVoucher(v)}>
+                <div key={v.customer_voucher_id} className="group cursor-pointer" onClick={() => openVoucher(v)}>
                   <div className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all border border-gray-100 relative h-[180px] md:h-[220px]">
                     <img 
                       src={DEFAULT_IMAGES[idx % DEFAULT_IMAGES.length]} 
@@ -142,7 +182,7 @@ const VoucherModal = ({ isOpen, onClose }: VoucherModalProps) => {
                       Hạn sử dụng: {formatDate(v.end_date)}
                     </span>
                     <button 
-                      onClick={(e) => { e.stopPropagation(); setSelectedVoucher(v); }}
+                      onClick={(e) => { e.stopPropagation(); openVoucher(v); }}
                       className="text-[#00a662] font-bold text-sm md:text-base hover:underline opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity"
                     >
                       Dùng ngay
@@ -158,25 +198,47 @@ const VoucherModal = ({ isOpen, onClose }: VoucherModalProps) => {
       {/* Nested QR Modal */}
       {selectedVoucher && (
         <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
-          <div 
+          <div
             className="absolute inset-0 bg-black/70 backdrop-blur-md"
-            onClick={() => setSelectedVoucher(null)}
+            onClick={closeVoucher}
           />
           <div className="relative bg-white rounded-3xl p-8 max-w-sm w-full flex flex-col items-center shadow-2xl animate-in fade-in zoom-in duration-300">
-            <button 
-              onClick={() => setSelectedVoucher(null)}
+            <button
+              onClick={closeVoucher}
               className="absolute top-4 right-4 p-2 bg-gray-100 hover:bg-gray-200 rounded-full transition-colors"
             >
               <X className="w-5 h-5 text-gray-600" />
             </button>
             <h3 className="text-xl font-bold text-gray-900 mb-6 mt-2 text-center">{selectedVoucher.name}</h3>
-            
-            <div className="bg-white p-4 rounded-2xl shadow-[0_0_20px_rgba(0,0,0,0.1)] mb-6">
-              <QRCode value={`${user ? user.id : ''}-${selectedVoucher.code}`} size={200} />
+
+            <div className="bg-white p-4 rounded-2xl shadow-[0_0_20px_rgba(0,0,0,0.1)] mb-6 min-h-[232px] flex items-center justify-center">
+              {tokenLoading ? (
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#00a662]" />
+              ) : tokenError ? (
+                <div className="flex flex-col items-center text-center px-4">
+                  <AlertCircle className="w-12 h-12 text-red-400 mb-3" />
+                  <p className="text-sm text-red-500">{tokenError}</p>
+                </div>
+              ) : scanToken && timeLeft > 0 ? (
+                <QRCode value={scanToken} size={200} />
+              ) : (
+                <div className="flex flex-col items-center text-center px-4 gap-3">
+                  <p className="text-sm text-gray-500">Mã QR đã hết hạn</p>
+                  <button
+                    onClick={() => openVoucher(selectedVoucher)}
+                    className="px-4 py-2 bg-[#00a662] text-white rounded-full text-sm font-bold hover:bg-[#008f54] transition-colors"
+                  >
+                    Tạo lại mã
+                  </button>
+                </div>
+              )}
             </div>
-            
+
+            {scanToken && timeLeft > 0 && (
+              <p className="text-sm font-bold text-[#00a662] mb-2">Hết hạn sau {timeLeft}s</p>
+            )}
             <p className="text-sm text-gray-600 font-medium text-center px-2">
-              Đưa mã QR này cho nhân viên phục vụ hoặc thu ngân để áp dụng giảm giá
+              Đưa mã QR này cho nhân viên phục vụ hoặc thu ngân để áp dụng giảm giá — bạn cũng được tích điểm & cashback khi thanh toán.
             </p>
           </div>
         </div>

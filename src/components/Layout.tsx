@@ -3,7 +3,6 @@ import { Gift, Home, Grid, Calendar as CalendarIcon, QrCode, User } from 'lucide
 import VoucherModal from './VoucherModal';
 import ProfileDrawer from './ProfileDrawer';
 import PaymentModal from './PaymentModal';
-import QrActionModal from './QrActionModal';
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -12,7 +11,6 @@ const Layout = () => {
   const location = useLocation();
   const [isVoucherModalOpen, setIsVoucherModalOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
-  const [isQrModalOpen, setIsQrModalOpen] = useState(false);
   const { user, refreshProfile } = useAuth();
 
   useEffect(() => {
@@ -25,7 +23,6 @@ const Layout = () => {
   useEffect(() => {
     setIsVoucherModalOpen(false);
     setIsProfileOpen(false);
-    setIsQrModalOpen(false);
   }, [location.pathname]);
 
   return (
@@ -116,7 +113,7 @@ const Layout = () => {
             isCenter: true,
             icon: QrCode, 
             label: 'Quét mã',
-            onClick: () => setIsQrModalOpen(true) 
+            path: '/my-qr'
           },
           { 
             isAction: true, 
@@ -127,9 +124,7 @@ const Layout = () => {
           { path: '/booking', icon: CalendarIcon, label: 'Đặt bàn' }
         ].map((item, idx) => {
           let isActive = false;
-          if (isQrModalOpen) {
-            isActive = item.label === 'Quét mã';
-          } else if (isVoucherModalOpen) {
+          if (isVoucherModalOpen) {
             isActive = item.label === 'Quà tặng';
           } else {
             isActive = item.path === location.pathname;
@@ -145,7 +140,6 @@ const Layout = () => {
                 } else if (item.path) {
                   navigate(item.path);
                   setIsVoucherModalOpen(false);
-                  setIsQrModalOpen(false);
                   setIsProfileOpen(false);
                 }
               }}
@@ -166,13 +160,6 @@ const Layout = () => {
         onClose={() => setIsVoucherModalOpen(false)} 
       />
       
-      {/* QR Action Modal */}
-      <QrActionModal
-        isOpen={isQrModalOpen}
-        onClose={() => setIsQrModalOpen(false)}
-        user={user}
-      />
-
       {/* Profile Drawer */}
       <ProfileDrawer 
         isOpen={isProfileOpen} 

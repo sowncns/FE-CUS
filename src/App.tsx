@@ -12,6 +12,7 @@ import ReservationHistory from './pages/ReservationHistory';
 import VerifyEmail from './pages/VerifyEmail';
 import ResetPassword from './pages/ResetPassword';
 import Invoices from './pages/Invoices';
+import MyQr from './pages/MyQr';
 
 function App() {
   return (
@@ -30,6 +31,7 @@ function App() {
           <Route path="igo-card" element={<IGoCard />} />
           <Route path="topup" element={<Topup />} />
           <Route path="invoices" element={<Invoices />} />
+          <Route path="my-qr" element={<MyQr />} />
         </Route>
       </Routes>
     </BrowserRouter>
