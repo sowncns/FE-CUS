@@ -6,7 +6,7 @@
 ## Quyết định
 
 - **App native:** React Native qua **Expo** (managed), **Expo Router** (điều hướng file-based), **NativeWind** (Tailwind cho RN).
-- **Vị trí:** folder mới `mobile/` **bên trong** repo `igourmet-app`. Web Vite giữ nguyên, không đụng.
+- **Vị trí:** folder mới `D:\NhaHang\mobile` (**ngang hàng** với `igourmet-app`, `backend`). Web Vite giữ nguyên, không đụng.
 - **Dùng lại:** logic gọi API, types, luồng nghiệp vụ, token màu/spacing Tailwind. **Viết lại:** toàn bộ UI (~13 màn) bằng component RN.
 - QR: `react-native-qrcode-svg` (thay `qrcode.react`/`react-qr-code` không chạy trên RN).
 
