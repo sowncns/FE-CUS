@@ -6,7 +6,7 @@ import { useAuth } from '../contexts/AuthContext';
 import ForgotPasswordModal from '../components/ForgotPasswordModal';
 
 const Login = () => {
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
@@ -19,14 +19,14 @@ const Login = () => {
     e.preventDefault();
     setError('');
     
-    if (!username || !password) {
-      setError('Vui lòng nhập tên đăng nhập và mật khẩu');
+    if (!email || !password) {
+      setError('Vui lòng nhập email và mật khẩu');
       return;
     }
 
     setLoading(true);
     try {
-      const response: any = await api.post('/customer/auth/login', { username, password });
+      const response: any = await api.post('/customer/auth/login', { email, password });
       
       const user = response.customer || response;
       login(user);
@@ -53,13 +53,13 @@ const Login = () => {
 
         <form onSubmit={handleLogin} className="space-y-6">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Tên đăng nhập</label>
-            <input 
-              type="text" 
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
+            <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
-              placeholder="Nhập tên đăng nhập"
+              placeholder="Nhập email"
             />
           </div>
           <div>

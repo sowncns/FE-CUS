@@ -31,6 +31,7 @@ const ProfileDrawer = ({ isOpen, onClose, openVoucherModal }: ProfileDrawerProps
   const [editForm, setEditForm] = useState({
     name: user?.full_name || 'Khách hàng',
     dob: '',
+    phone: '',
     gender: '',
     email: user?.email || ''
   });

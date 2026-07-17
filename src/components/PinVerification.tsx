@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Lock, AlertCircle, } from 'lucide-react';
 import api from '../lib/api';
+import { useAuth } from '../contexts/AuthContext';
 
 interface PinVerificationProps {
   onSuccess?: () => void;
@@ -21,6 +22,8 @@ const PinVerification: React.FC<PinVerificationProps> = ({ onSuccess, onSubmitPi
   const [step, setStep] = useState(initialStep);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [resending, setResending] = useState(false);
+  const { user } = useAuth();
 
   const handleNumberClick = (num: string) => {
     if (error) setError('');
@@ -113,6 +116,38 @@ const PinVerification: React.FC<PinVerificationProps> = ({ onSuccess, onSubmitPi
   };
 
   const keypad = [1, 2, 3, 4, 5, 6, 7, 8, 9, '', 0, 'del'];
+
+  if (user && !user.email_verified) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] px-6 text-center">
+        <div className="w-16 h-16 bg-amber-50 rounded-full flex items-center justify-center mb-6">
+          <AlertCircle className="w-8 h-8 text-amber-500" />
+        </div>
+        <h2 className="text-2xl font-bold text-gray-800 mb-3">Yêu cầu xác thực Email</h2>
+        <p className="text-gray-500 mb-8 max-w-sm">
+          Để thực hiện các chức năng yêu cầu mã PIN hoặc thanh toán, bạn cần xác thực địa chỉ email của mình trước.
+        </p>
+        <button
+          onClick={async () => {
+            if (resending) return;
+            setResending(true);
+            try {
+              await api.post('/customer/auth/request-verification');
+              alert('Đã gửi lại email xác thực. Vui lòng kiểm tra hộp thư của bạn (cả hộp thư rác).');
+            } catch (err: any) {
+              alert(err.response?.data?.message || err.message || 'Có lỗi xảy ra khi gửi lại email.');
+            } finally {
+              setResending(false);
+            }
+          }}
+          disabled={resending}
+          className="w-full max-w-[280px] bg-amber-500 hover:bg-amber-600 text-white font-medium py-3.5 rounded-xl transition-colors disabled:opacity-70 disabled:cursor-not-allowed shadow-sm"
+        >
+          {resending ? 'Đang gửi email...' : 'Gửi email xác thực'}
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col items-center justify-center min-h-[60vh] px-4">

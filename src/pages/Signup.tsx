@@ -5,7 +5,6 @@ import api from '../lib/api';
 const Signup = () => {
   const [formData, setFormData] = useState({
     full_name: '',
-    username: '',
     email: '',
     password: '',
   });
@@ -26,7 +25,7 @@ const Signup = () => {
     setError('');
     setSuccess('');
     
-    if (!formData.full_name || !formData.username || !formData.email || !formData.password) {
+    if (!formData.full_name || !formData.email || !formData.password) {
       setError('Vui lòng điền đầy đủ thông tin');
       return;
     }
@@ -72,17 +71,6 @@ const Signup = () => {
               onChange={handleChange}
               className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
               placeholder="Ví dụ: Nguyễn Văn A"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Tên đăng nhập</label>
-            <input 
-              type="text" 
-              name="username"
-              value={formData.username}
-              onChange={handleChange}
-              className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
-              placeholder="Tên đăng nhập viết liền không dấu"
             />
           </div>
           <div>

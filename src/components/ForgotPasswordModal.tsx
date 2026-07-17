@@ -8,7 +8,7 @@ interface ForgotPasswordModalProps {
 }
 
 const ForgotPasswordModal = ({ isOpen, onClose }: ForgotPasswordModalProps) => {
-  const [usernameOrEmail, setUsernameOrEmail] = useState('');
+  const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
@@ -20,14 +20,14 @@ const ForgotPasswordModal = ({ isOpen, onClose }: ForgotPasswordModalProps) => {
     setError('');
     setMessage('');
 
-    if (!usernameOrEmail) {
-      setError('Vui lòng nhập tên đăng nhập');
+    if (!email) {
+      setError('Vui lòng nhập email');
       return;
     }
 
     setLoading(true);
     try {
-      await api.post('/customer/auth/forgot-password', { usernameOrEmail });
+      await api.post('/customer/auth/forgot-password', { email });
       setMessage('Yêu cầu khôi phục mật khẩu đã được gửi. Vui lòng kiểm tra email của bạn.');
     } catch (err: any) {
       const msg = typeof err.response?.data === 'string' ? err.response.data : err.response?.data?.message;
@@ -49,7 +49,7 @@ const ForgotPasswordModal = ({ isOpen, onClose }: ForgotPasswordModalProps) => {
 
         <h3 className="text-2xl font-bold text-gray-800 mb-2">Quên mật khẩu</h3>
         <p className="text-gray-600 mb-6 text-sm">
-          Nhập tên đăng nhập của bạn để nhận hướng dẫn khôi phục mật khẩu.
+          Nhập email của bạn để nhận hướng dẫn khôi phục mật khẩu.
         </p>
 
         {error && (
@@ -67,14 +67,14 @@ const ForgotPasswordModal = ({ isOpen, onClose }: ForgotPasswordModalProps) => {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Tên đăng nhập
+              Email
             </label>
-            <input 
-              type="text" 
-              value={usernameOrEmail}
-              onChange={(e) => setUsernameOrEmail(e.target.value)}
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
-              placeholder="Nhập thông tin..."
+              placeholder="Nhập email..."
             />
           </div>
 
